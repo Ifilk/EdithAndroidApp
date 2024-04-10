@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
+
+    <LinearLayout
+            android:id="@+id/left_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:orientation="vertical"
+            android:background="@drawable/bobble"
+            android:layout_marginStart="20dip"
+            android:layout_marginEnd="100dip"
+            android:layout_marginTop="20dip">
+
+        <sulic.androidproject.edith.ui.component.StreamTextView
+                android:id="@+id/left_msg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="10dp"
+                android:textColor="@color/white" />
+
+    </LinearLayout>
+
+    <LinearLayout
+            android:id="@+id/right_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:orientation="vertical"
+            android:background="@drawable/bobble_right"
+            android:layout_marginEnd="20dip"
+            android:layout_marginStart="100dip"
+            android:layout_marginTop="20dip">
+
+        <sulic.androidproject.edith.ui.component.StreamTextView
+                android:id="@+id/right_msg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="10dp"
+                android:textColor="@color/white" />
+
+    </LinearLayout>
+</LinearLayout>
