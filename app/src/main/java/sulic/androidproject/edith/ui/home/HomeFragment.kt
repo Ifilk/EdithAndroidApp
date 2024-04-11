@@ -20,6 +20,7 @@ import sulic.androidproject.edith.MainActivity
 import sulic.androidproject.edith.R
 import sulic.androidproject.edith.TTSListener
 import sulic.androidproject.edith.common.post
+import sulic.androidproject.edith.common.showMsg
 import sulic.androidproject.edith.common.upload
 import sulic.androidproject.edith.databinding.FragmentHomeBinding
 import sulic.androidproject.edithandroidapp2.adapter.Msg
@@ -40,6 +41,9 @@ class HomeFragment : Fragment() {
     private lateinit var recorder: MediaRecorder
     private lateinit var mMediaPlayer: MediaPlayer
     private lateinit var mTextToSpeech: TextToSpeech
+
+    private var isPrepared = false
+    private var recordingTime = -1L
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
@@ -96,14 +100,22 @@ class HomeFragment : Fragment() {
                         setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
                         try {
                             prepare()
+                            start()
+                            recordingTime = System.currentTimeMillis()
+                            isPrepared = true
                         } catch (e: IOException) {
-                            displayMsg("无法获取到麦克风", Msg.TYPE_RECEIVED)
+                            showMsg(root.context, getString(R.string.microphone_busy))
+                            isPrepared = false
                         }
-                        start()
                     }
 
                 }
                 MotionEvent.ACTION_UP -> {
+                    if (!isPrepared &&
+                        System.currentTimeMillis() - recordingTime < 1000){
+                        showMsg(root.context, getString(R.string.overshort_audio))
+                        return@setOnTouchListener true
+                    }
                     MediaPlayer.create(root.context, R.raw.button_click).start()
                     binding.fab.performClick()
 //                    binding.fab.setImageResource()
@@ -118,7 +130,7 @@ class HomeFragment : Fragment() {
                         mMediaPlayer.prepare()
                         mMediaPlayer.start()
                         Thread {
-                            val result0 = upload("${MainActivity.SERVER_IP}/stt", "output.3gp", tempFile)
+                            val result0 = upload("${MainActivity.SERVER_IP}/stt", getString(R.string.audio_output_filename), tempFile)
                             MainActivity.ACTIVITY.runOnUiThread {
                                 val s = result0.replace("\"", "")
                                 displayMsg(s, Msg.TYPE_SEND)
@@ -136,7 +148,7 @@ class HomeFragment : Fragment() {
                         }.start()
                         v.startAnimation(AnimationUtils.loadAnimation(root.context, R.anim.computing_animation))
                         binding.fab.isEnabled = false
-                    }
+                    } else showMsg(root.context, getString(R.string.audio_file_not_found))
                 }
             }
             true
@@ -145,7 +157,7 @@ class HomeFragment : Fragment() {
         return root
     }
 
-    fun displayMsg(msg: String, type: Int){
+    private fun displayMsg(msg: String, type: Int){
         msgContext.add(Msg(msg, type))
         msgAdapter.notifyItemInserted(msgContext.size - 1)
         binding.msgRecyclerView.scrollToPosition(msgContext.size - 1)

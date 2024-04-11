@@ -9,8 +9,10 @@
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
+    <string name="audio_output_filename">output.3gp</string>
 
-    <string name="btn_main_text_ready">Start</string>
-    <string name="btn_main_text_recording">Recording</string>
-    <string name="btn_main_text_waiting">Waiting</string>
+
+    <string name="microphone_busy">无法获取到麦克风</string>
+    <string name="audio_file_not_found">无法找到音频缓存文件</string>
+    <string name="overshort_audio">录音过短</string>
 </resources>
