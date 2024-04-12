@@ -75,8 +75,28 @@ class HomeFragment : Fragment() {
             imm.hideSoftInputFromWindow(binding.editText.windowToken, 0)
 
             Thread {
-                val result1 = post("${MainActivity.SERVER_IP}/contact",
-                    JSONObject(mapOf("role" to "user", "content" to s)).toString())
+//                val result1 = post("${MainActivity.SERVER_IP}/chat/completions",
+//                    JSONObject(mapOf("role" to "user", "content" to s)).toString())
+                val result1 = post("${MainActivity.SERVER_IP}/chat/completions",
+                    """
+                        {
+                          "frequency_penalty": 1,
+                          "max_tokens": 1000,
+                          "messages": [
+                            {
+                              "content": "$s",
+                              "raw": false,
+                              "role": "user"
+                            }
+                          ],
+                          "model": "rwkv",
+                          "presence_penalty": 0,
+                          "presystem": true,
+                          "stream": false,
+                          "temperature": 1,
+                          "top_p": 0.3
+                        }
+                    """.trimIndent())
                 MainActivity.ACTIVITY.runOnUiThread {
                     val m = result1.replace("\"", "")
                     displayMsg(m, Msg.TYPE_RECEIVED)

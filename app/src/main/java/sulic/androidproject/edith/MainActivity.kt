@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
         const val AUTO_INTERRUPT_MIN_VOLUME = 5000
         var TextToSpeech = true
         var OriginTextToSpeechAvailable = false
-        var SERVER_IP = "http://60.205.236.106:9002"
+        var SERVER_IP = "http://192.168.3.41:8000"
         var AvailableSystemSpeechRecognizer: SpeechRecognizer? = null
         lateinit var ACTIVITY: AppCompatActivity
     }
