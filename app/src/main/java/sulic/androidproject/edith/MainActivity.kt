@@ -1,5 +1,7 @@
 package sulic.androidproject.edith
 
+//import androidx.viewpager2.widget.ViewPager2
+//import sulic.androidproject.edith.ui.component.adapter.HomeFragmentAdapter
 import android.Manifest
 import android.bluetooth.BluetoothManager
 import android.content.ComponentName
@@ -7,8 +9,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.MATCH_ALL
 import android.content.pm.ResolveInfo
-import android.media.MediaPlayer
-import android.media.MediaRecorder
 import android.os.Bundle
 import android.provider.Settings
 import android.speech.RecognitionService
@@ -18,9 +18,7 @@ import android.speech.tts.TextToSpeech
 import android.speech.tts.TextToSpeech.OnInitListener
 import android.util.Log
 import android.view.Menu
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.Toast
+import android.view.MotionEvent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.get
@@ -31,26 +29,28 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
+import dagger.hilt.android.AndroidEntryPoint
 import sulic.androidproject.edith.databinding.ActivityMainBinding
+import sulic.androidproject.edith.service.Properties
+import sulic.androidproject.edith.ui.component.ServerSettingsDialog
 import sulic.androidproject.edith.ui.component.ServerSettingsDialog.OnServerAddressSetListener
-import sulic.androidproject.edith.ui.component.ServerSettingsDialog.show
+import javax.inject.Inject
 
 
-class MainActivity : AppCompatActivity() {
+@AndroidEntryPoint
+class MainActivity: AppCompatActivity() {
+    @Inject
+    lateinit var properties: Properties
+
+    @Inject
+    lateinit var serverSettingsDialog: ServerSettingsDialog
+
     private val TAG = MainActivity::class.simpleName
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
 
     companion object {
-        const val MIN_TIME_STEP = 1000L
-        const val AUDIO_SAMPLE_INTERVAL = 1000L
-        const val AUTO_INTERRUPT_TOLERANCE = 10
-        const val AUTO_INTERRUPT_MIN_VOLUME = 5000
-        var TextToSpeech = true
-        var OriginTextToSpeechAvailable = false
-        var SERVER_IP = "http://60.205.236.106:9002"
-        var AvailableSystemSpeechRecognizer: SpeechRecognizer? = null
-        lateinit var ACTIVITY: AppCompatActivity
+        lateinit var ACTIVITY: MainActivity
     }
 
     private val requestMultiplePermissions =
@@ -62,6 +62,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -75,9 +76,9 @@ class MainActivity : AppCompatActivity() {
             Manifest.permission.VIBRATE))
 
         //华为手机返回true, 但服务不可用
-        OriginTextToSpeechAvailable = SpeechRecognizer.isRecognitionAvailable(this)
+        properties.OriginTextToSpeechAvailable = SpeechRecognizer.isRecognitionAvailable(this)
 
-        if(OriginTextToSpeechAvailable){
+        if(properties.OriginTextToSpeechAvailable){
             val serviceComponent: String = Settings.Secure.getString(contentResolver,"voice_recognition_service")
             val component = ComponentName.unflattenFromString(serviceComponent)
             var currentRecognitionCmp: ComponentName? = null
@@ -93,13 +94,13 @@ class MainActivity : AppCompatActivity() {
                     if(info.serviceInfo.name ==
                         "com.huawei.vassistant.voiceui.service.FakeRecognitionService"){
                         if(list.size == 1){
-                            OriginTextToSpeechAvailable.not()
+                            properties.OriginTextToSpeechAvailable.not()
                         }
                         continue
                     }
                     if (component != null) {
                         if (info.serviceInfo.packageName == component.packageName) {
-                            OriginTextToSpeechAvailable = true
+                            properties.OriginTextToSpeechAvailable = true
                             break
                         } else {
                             currentRecognitionCmp = ComponentName(info.serviceInfo.packageName, info.serviceInfo.name)
@@ -108,9 +109,9 @@ class MainActivity : AppCompatActivity() {
                 }
             } else {
                 Log.d("MainActivity", "No recognition services installed")
-                OriginTextToSpeechAvailable = false
+                properties.OriginTextToSpeechAvailable = false
             }
-            AvailableSystemSpeechRecognizer = if (OriginTextToSpeechAvailable)
+            properties.AvailableSystemSpeechRecognizer = if (properties.OriginTextToSpeechAvailable)
                 SpeechRecognizer.createSpeechRecognizer(this)
             else if (currentRecognitionCmp != null)
                 SpeechRecognizer.createSpeechRecognizer(this, currentRecognitionCmp)
@@ -133,23 +134,61 @@ class MainActivity : AppCompatActivity() {
         // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow
+                R.id.nav_home, R.id.nav_settings, R.id.nav_slideshow
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+//        findViewById<ViewPager2>(R.id.viewPager).adapter = HomeFragmentAdapter(this)
+
+
+//        object : SimpleOnGestureListener() {
+//            override fun onFling(
+//                e1: MotionEvent?, e2: MotionEvent, velocityX: Float,
+//                velocityY: Float
+//            ): Boolean {
+//                Log.d("HomeFragment", "$e1 $e2")
+//                // e1: 第一次按下的位置   e2   当手离开屏幕 时的位置  velocityX  沿x 轴的速度  velocityY： 沿Y轴方向的速度
+//                //判断竖直方向移动的大小
+//                if (abs((e1!!.rawY - e2.rawY).toDouble()) > 100) {
+//                    //Toast.makeText(getApplicationContext(), "动作不合法", 0).show();
+//                    return true
+//                }
+//                if(supportFragmentManager.findFragmentById(R.id.app_bar_main) is HomeFragment){
+//                    if ((e1.rawX - e2.rawX) > 200) { // 表示 向右滑动表示下一页
+//                        //显示下一页
+//                        Log.d("HomeFragment", "in left ")
+//                        val intent = Intent(this@MainActivity, LOTMonitorActivity::class.java)
+//                        startActivity(intent)
+//                        ACTIVITY.overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_left)
+//                        return true
+//                    }
+//                }
+//                if (abs(velocityX.toDouble()) < 150) {
+//                    //Toast.makeText(getApplicationContext(), "移动的太慢", 0).show();
+//                    return true
+//                }
+//                if ((e2.rawX - e1.rawX) > 200) {  //向左滑动 表示 上一页
+//                    //显示上一页
+//
+//                    return true
+//                }
+//                return super.onFling(e1, e2, velocityX, velocityY)
+//            }
+//        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.main, menu)
         menu[0].setOnMenuItemClickListener {
-            show(this, object : OnServerAddressSetListener {
+            serverSettingsDialog.show(this, object : OnServerAddressSetListener {
                 override fun onServerAddressSet(ipAddress: String?) {
-                    SERVER_IP = ipAddress!!
+                    properties.SERVER_IP = ipAddress!!
                 }
                 override fun onDefaultTTsSet(b: Boolean?) {
-                    TextToSpeech = b!!
+                    properties.TextToSpeech = b!!
                 }
             })
             true
@@ -171,6 +210,26 @@ class MainActivity : AppCompatActivity() {
     private fun hasPermission(permission: String) =
         checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
 
+    private val onTouchListeners = ArrayList<OnTouchListener>(10)
+
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        for (listener in onTouchListeners) {
+            listener.onTouch(ev)
+        }
+        return super.dispatchTouchEvent(ev)
+    }
+
+    fun registerMyOnTouchListener(onTouchListener: OnTouchListener) {
+        onTouchListeners.add(onTouchListener)
+    }
+
+    fun unregisterMyOnTouchListener(onTouchListener: OnTouchListener) {
+        onTouchListeners.remove(onTouchListener)
+    }
+
+    interface OnTouchListener {
+        fun onTouch(ev: MotionEvent?): Boolean
+    }
 }
 
 class TTSListener : OnInitListener {

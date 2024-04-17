@@ -7,9 +7,11 @@ import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import sulic.androidproject.edith.MainActivity
 import java.io.File
 import java.io.IOException
 import java.net.ConnectException
+import kotlin.reflect.KFunction3
 
 @Throws(Exception::class)
 fun post(url: String, params: Map<String, String>): String{
@@ -83,24 +85,8 @@ fun showMsg(context: Context,msg: String){
     Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
 }
 
-//@Throws(IOException::class)
-//fun InputStreamToString(`is`: InputStream?): String {
-//    val os = ByteArrayOutputStream()
-//    val data = ByteArray(1024)
-//    var len = -1
-//    while ((`is`!!.read(data).also { len = it }) != -1) {
-//        os.write(data, 0, len)
-//    }
-//    os.flush()
-//    os.close()
-//    val result = String(data, charset("UTF-8"))
-//    return result
-//}
-//
-//interface HttpCallBack {
-//    fun onSuccess(result: String?)
-//
-//    fun onError(e: Exception?)
-//
-//    fun onFinish()
-//}
+fun Call.executeAround(onFailure: (Call, IOException)->Unit,
+                       onResponse: (Call, Response)->Unit) = this.enqueue(object: Callback {
+    override fun onFailure(call: Call, e: IOException) = onFailure(call, e)
+    override fun onResponse(call: Call, response: Response) = onResponse(call, response)
+})

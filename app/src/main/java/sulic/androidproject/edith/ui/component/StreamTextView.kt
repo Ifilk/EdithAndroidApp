@@ -27,12 +27,6 @@ class StreamTextView(context: Context, attrs: AttributeSet? = null) : AppCompatT
     }
 
     private fun update(){
-//        while(stringBuffer.isNotEmpty()){
-//            stringBuilder.append(stringBuffer[0])
-//            stringBuffer.deleteCharAt(0)
-//            text = stringBuilder.toString()
-////            Thread.sleep(DISPLAY_DELAY)
-//        }
         if (stringBuffer.isEmpty()) return
         stringBuilder.append(stringBuffer[0])
         stringBuffer.deleteCharAt(0)

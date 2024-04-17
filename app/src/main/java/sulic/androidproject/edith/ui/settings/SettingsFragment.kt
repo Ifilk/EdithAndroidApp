@@ -1,17 +1,16 @@
-package sulic.androidproject.edith.ui.slideshow
+package sulic.androidproject.edith.ui.settings
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import sulic.androidproject.edith.databinding.FragmentSlideshowBinding
+import sulic.androidproject.edith.databinding.FragmentSettingsBinding
 
-class SlideshowFragment : Fragment() {
+class SettingsFragment : Fragment() {
 
-    private var _binding: FragmentSlideshowBinding? = null
+    private var _binding: FragmentSettingsBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -22,16 +21,16 @@ class SlideshowFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val slideshowViewModel =
-            ViewModelProvider(this).get(SlideshowViewModel::class.java)
+        val settingsViewModel =
+            ViewModelProvider(this)[SettingsViewModel::class.java]
 
-        _binding = FragmentSlideshowBinding.inflate(inflater, container, false)
+        _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textSlideshow
-        slideshowViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
+//        val textView: TextView = binding.textGallery
+//        galleryViewModel.text.observe(viewLifecycleOwner) {
+//            textView.text = it
+//        }
         return root
     }
 

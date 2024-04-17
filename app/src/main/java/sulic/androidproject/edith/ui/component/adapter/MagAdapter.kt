@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import sulic.androidproject.edith.R
 import sulic.androidproject.edith.ui.component.StreamTextView
 
-class Msg(val content: String, val type: Int) {
+class Msg(val content: String?, val type: Int) {
     val stamp = System.currentTimeMillis()
     companion object {
         const val TYPE_RECEIVED: Int = 0

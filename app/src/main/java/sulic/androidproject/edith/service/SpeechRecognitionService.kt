@@ -1,4 +1,4 @@
-package sulic.androidproject.edith.ui.service
+package sulic.androidproject.edith.service
 
 import android.content.Intent
 import android.speech.RecognitionListener

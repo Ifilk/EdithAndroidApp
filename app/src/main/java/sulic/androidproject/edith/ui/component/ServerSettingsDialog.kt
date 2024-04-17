@@ -7,21 +7,25 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
 import sulic.androidproject.edith.MainActivity
+import sulic.androidproject.edith.service.Properties
+import javax.inject.Inject
 
 
-object ServerSettingsDialog {
+class ServerSettingsDialog @Inject constructor(
+    private val properties: Properties
+) {
     fun show(context: Context?, listener: OnServerAddressSetListener?) {
         val layout = LinearLayout(context)
         layout.orientation = LinearLayout.VERTICAL
         val ipAddressInput = EditText(context)
-        ipAddressInput.setText(MainActivity.SERVER_IP)
+        ipAddressInput.setText(properties.SERVER_IP)
         ipAddressInput.hint = "Enter server IP address"
         layout.addView(ipAddressInput)
 
         val ttsCheckBox = CheckBox(context)
         ttsCheckBox.text = "Enable TTS by default"
         layout.addView(ttsCheckBox)
-        ttsCheckBox.isChecked = MainActivity.TextToSpeech
+        ttsCheckBox.isChecked = properties.TextToSpeech
 
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Server Settings")

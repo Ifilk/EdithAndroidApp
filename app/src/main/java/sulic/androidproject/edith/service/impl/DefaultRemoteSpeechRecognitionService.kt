@@ -1,8 +1,8 @@
-package sulic.androidproject.edith.ui.service.impl
+package sulic.androidproject.edith.service.impl
 
 import android.content.Intent
 import android.speech.RecognitionListener
-import sulic.androidproject.edith.ui.service.SpeechRecognitionService
+import sulic.androidproject.edith.service.SpeechRecognitionService
 
 class DefaultRemoteSpeechRecognitionService: SpeechRecognitionService {
     private var listener: RecognitionListener? = null
