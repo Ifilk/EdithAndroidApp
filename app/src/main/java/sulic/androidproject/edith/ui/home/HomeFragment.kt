@@ -8,6 +8,7 @@ import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.*
 import android.view.GestureDetector.SimpleOnGestureListener
+import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -17,10 +18,13 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import okhttp3.Call
+import org.json.JSONObject
 import sulic.androidproject.edith.MainActivity
 import sulic.androidproject.edith.R
 import sulic.androidproject.edith.TTSListener
+import sulic.androidproject.edith.common.executeAround
 import sulic.androidproject.edith.databinding.FragmentHomeBinding
+import sulic.androidproject.edith.dto.CompletionDto.Companion.toDefaultCompletionDto
 import sulic.androidproject.edith.service.LLMRemoteService
 import sulic.androidproject.edith.service.Properties
 import sulic.androidproject.edithandroidapp2.adapter.Msg
@@ -117,6 +121,23 @@ class HomeFragment @Inject constructor(): Fragment() {
             }
         })
 
+        binding.editText.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_SEND) {
+                llmRemoteService.completion(arrayOf(binding.editText.text.toString()).toDefaultCompletionDto())
+                    .executeAround(defaultCallExceptionHandler){ call, response ->
+                        val arr = JSONObject(response.body?.string()).getJSONArray("choices")
+                        for (i in 0 until arr.length()) {
+                            val msg = (arr.get(i) as JSONObject).getJSONObject("message").getString("content")
+                            displayMsg(msg, Msg.TYPE_RECEIVED)
+//                            if(MainActivity.TextToSpeech)
+//                                mTextToSpeech.speak(msg, TextToSpeech.QUEUE_FLUSH, null, "0")
+                        }
+                        displayMsgFromReceive(response.body?.string())
+                    }
+                return@setOnEditorActionListener true
+            }
+            false
+        }
         MainActivity.ACTIVITY.registerMyOnTouchListener(object : MainActivity.OnTouchListener {
             override fun onTouch(ev: MotionEvent?): Boolean {
                 return ev?.let { detector.onTouchEvent(it) } ?: true
@@ -131,13 +152,13 @@ class HomeFragment @Inject constructor(): Fragment() {
 //            imm.hideSoftInputFromWindow(binding.editText.windowToken, 0)
 //            llmRemoteService.completion(arrayOf(s).toDefaultCompletionDto())
 //                .executeAround(defaultCallExceptionHandler){ call, response ->
-////                    val arr = JSONObject(response.body?.string()).getJSONArray("choices")
-////                    for (i in 0 until arr.length()) {
-////                        val msg = (arr.get(i) as JSONObject).getJSONObject("message").getString("content")
-////                        displayMsg(msg, Msg.TYPE_RECEIVED)
-////                        if(MainActivity.TextToSpeech)
-////                            mTextToSpeech.speak(msg, TextToSpeech.QUEUE_FLUSH, null, "0")
-////                    }
+//                    val arr = JSONObject(response.body?.string()).getJSONArray("choices")
+//                    for (i in 0 until arr.length()) {
+//                        val msg = (arr.get(i) as JSONObject).getJSONObject("message").getString("content")
+//                        displayMsg(msg, Msg.TYPE_RECEIVED)
+//                        if(MainActivity.TextToSpeech)
+//                            mTextToSpeech.speak(msg, TextToSpeech.QUEUE_FLUSH, null, "0")
+//                    }
 //                    displayMsgFromReceive(response.body?.string())
 //                    enableSendButton()
 //                }
