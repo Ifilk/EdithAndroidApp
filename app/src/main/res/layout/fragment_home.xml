@@ -77,7 +77,8 @@
                     android:paddingStart="10dip"
                     android:textColor="@android:color/black"
                     android:textSize="12sp"
-                    android:imeOptions="actionSend"/>
+                    android:imeOptions="actionSend"
+                    android:singleLine="true"/>
 
                 <sulic.androidproject.edith.ui.component.FontIconView
                     android:id="@+id/microphone"

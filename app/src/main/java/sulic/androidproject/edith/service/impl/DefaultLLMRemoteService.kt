@@ -16,7 +16,8 @@ class DefaultLLMRemoteService @Inject constructor(
     private val properties: Properties
 ): LLMRemoteService {
     override fun completion(dto: CompletionDto): Call{
-        return post("http://${properties.SERVER_IP}/completion", dto.toJSONString())
+        return post("${properties.SERVER_IP}/chat/completions", dto.toJSONString())
+
     }
 
 

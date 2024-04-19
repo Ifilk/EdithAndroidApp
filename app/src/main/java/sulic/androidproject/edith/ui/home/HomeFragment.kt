@@ -122,17 +122,19 @@ class HomeFragment @Inject constructor(): Fragment() {
         })
 
         binding.editText.setOnEditorActionListener { v, actionId, event ->
+            val text = binding.editText.text.toString()
+            binding.editText.text.clear()
+            displayMsgFromSend(text)
             if (actionId == EditorInfo.IME_ACTION_SEND) {
-                llmRemoteService.completion(arrayOf(binding.editText.text.toString()).toDefaultCompletionDto())
+                llmRemoteService.completion(arrayOf(text).toDefaultCompletionDto())
                     .executeAround(defaultCallExceptionHandler){ call, response ->
                         val arr = JSONObject(response.body?.string()).getJSONArray("choices")
                         for (i in 0 until arr.length()) {
                             val msg = (arr.get(i) as JSONObject).getJSONObject("message").getString("content")
-                            displayMsg(msg, Msg.TYPE_RECEIVED)
-//                            if(MainActivity.TextToSpeech)
-//                                mTextToSpeech.speak(msg, TextToSpeech.QUEUE_FLUSH, null, "0")
+                            displayMsgFromReceive(msg)
+                            if(properties.TextToSpeech)
+                                mTextToSpeech.speak(msg, TextToSpeech.QUEUE_FLUSH, null, "0")
                         }
-                        displayMsgFromReceive(response.body?.string())
                     }
                 return@setOnEditorActionListener true
             }
@@ -234,6 +236,8 @@ class HomeFragment @Inject constructor(): Fragment() {
     }
 
     private fun displayMsgFromReceive(msg: String?) = displayMsg(msg, Msg.TYPE_RECEIVED)
+
+    private fun displayMsgFromSend(msg: String?) = displayMsg(msg, Msg.TYPE_SEND)
 
     private fun displayMsg(msg: String?, type: Int){
         MainActivity.ACTIVITY.runOnUiThread{
